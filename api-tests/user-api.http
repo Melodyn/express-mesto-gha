@@ -1,0 +1,51 @@
+POST http://localhost:3000/users
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+
+{
+    "name":"Меместо",
+    "about":"Место ваших мемов",
+    "avatar":"https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif"
+}
+
+###
+
+GET http://localhost:3000/users
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/users/634acfe1f470f96c0c324948
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+
+###
+
+PATCH http://localhost:3000/users/me
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+User-ID: 634acfe1f470f96c0c324948
+
+{
+    "name":"Меместограм",
+    "about":"Инстаграм мемных мест"
+}
+
+###
+
+PATCH http://localhost:3000/users/me/avatar
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+User-ID: 634acfe1f470f96c0c324948
+
+{
+    "avatar":"https://memepedia.ru/wp-content/uploads/2019/03/u-suka-10.jpg"
+}
+
+###
