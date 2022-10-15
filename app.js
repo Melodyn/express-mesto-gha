@@ -36,7 +36,7 @@ export const run = async (envName) => {
   app.use('/users', userRouter);
   app.use('/cards', cardRouter);
   app.all('/*', (req, res) => {
-    res.status(404).send({ message: 'Запрашиваемая страница не найдена' })
+    res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
   });
 
   // ('mongodb://localhost:27017/mestodb')
