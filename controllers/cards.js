@@ -65,17 +65,21 @@ export const update = (req, res) => {
 export const remove = (req, res) => {
   const { id } = req.params;
 
-  Card.findOneAndDelete(id)
+  Card.findByIdAndDelete(id)
     .then((card) => {
       console.log('card', card);
       if (card) {
         res.send(card);
       } else {
-        responseUpdateError(res, '');
+        responseReadError(res);
       }
     })
     .catch((err) => {
       console.error(err);
-      responseUpdateError(res, err.message);
+      if (err.name === 'CastError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseReadError(res);
+      }
     });
 };
