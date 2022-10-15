@@ -10,7 +10,7 @@ const responseUpdateError = (res, message) => res.status(400).send({
 
 export const read = (req, res) => {
   const { id } = req.params;
-  const promise = id ? Card.findOne({ id }) : Card.find({});
+  const promise = id ? Card.findById(id) : Card.find({});
 
   promise
     .then((card) => {
