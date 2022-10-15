@@ -71,7 +71,7 @@ export const remove = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        responseReadError(res);
+        responseUpdateError(res, '');
       }
     })
     .catch((err) => {
