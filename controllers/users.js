@@ -22,7 +22,11 @@ export const read = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      responseReadError(res);
+      if (err.name === 'CastError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseReadError(res);
+      }
     });
 };
 

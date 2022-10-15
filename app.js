@@ -37,6 +37,7 @@ export const run = async (envName) => {
   app.use('/cards', cardRouter);
 
   // ('mongodb://localhost:27017/mestodb')
+  mongoose.set('runValidators', true);
   await mongoose.connect(config.DB_URL);
   const server = app.listen(config.PORT, config.HOST, () => {
     console.log(`Server run on http://${config.HOST}:${config.PORT}`);

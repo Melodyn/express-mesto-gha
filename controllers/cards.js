@@ -9,13 +9,10 @@ const responseUpdateError = (res, message) => res.status(400).send({
 });
 
 export const read = (req, res) => {
-  const { id } = req.params;
-  const promise = id ? Card.findById(id) : Card.find({});
-
-  promise
-    .then((card) => {
-      if (card) {
-        res.send(card);
+  Card.find({})
+    .then((cards) => {
+      if (cards) {
+        res.send(cards);
       } else {
         responseReadError(res);
       }
