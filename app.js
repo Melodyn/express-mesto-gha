@@ -5,8 +5,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 // routes
 import { router as userRouter } from './routes/users.js';
+import { router as cardRouter } from './routes/cards.js';
 
-export const app = async (envName) => {
+export const run = async (envName) => {
   process.on('unhandledRejection', (err) => {
     console.error(err);
     process.exit(1);
@@ -27,7 +28,9 @@ export const app = async (envName) => {
     next();
   });
   app.use('/users', userRouter);
+  app.use('/cards', cardRouter);
 
+  // ('mongodb://localhost:27017/mestodb')
   await mongoose.connect(config.DB_URL);
   const server = app.listen(config.PORT, config.HOST, () => {
     console.log(`Server run on http://${config.HOST}:${config.PORT}`);

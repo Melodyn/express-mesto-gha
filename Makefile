@@ -2,7 +2,7 @@ setup: install-dependencies mongo-run run
 install-dependencies:
 	npm ci
 
-# run
+# app
 run: mongo-run
 	npm run dev
 prod:

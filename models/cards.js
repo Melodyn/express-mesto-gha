@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const schema = new Schema({
   name: {
@@ -17,6 +17,14 @@ const schema = new Schema({
     type: Schema.ObjectId,
     ref: 'User',
     required: true,
+  },
+  likes: {
+    type: Array,
+    default: [],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
   },
 }, { versionKey: false });
 

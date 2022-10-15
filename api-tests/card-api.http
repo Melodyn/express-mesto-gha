@@ -1,0 +1,45 @@
+POST http://localhost:3000/cards
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+User-ID: 634acfe1f470f96c0c324948
+
+{
+    "name":"Котолампа",
+    "link":"https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif"
+}
+
+###
+
+GET http://localhost:3000/cards
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+
+### Лайк
+
+PUT http://localhost:3000/cards/634b09159b98fd1352ca3f3b/likes
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+User-ID: 634acfe1f470f96c0c324948
+
+### Дизлайк
+
+DELETE http://localhost:3000/cards/634b09159b98fd1352ca3f3b/likes
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+User-ID: 634acfe1f470f96c0c324948
+
+###
+
+### !!! Удаление карточки
+
+DELETE http://localhost:3000/cards/634b09159b98fd1352ca3f3b
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+User-ID: 634acfe1f470f96c0c324948
+
+###
