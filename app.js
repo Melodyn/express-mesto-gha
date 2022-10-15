@@ -23,8 +23,12 @@ export const run = async (envName) => {
 
   app.use(bodyParser.json());
   app.use((req, res, next) => {
-    const userId = req.headers['User-ID'] || req.headers['user-id'] || 'empty';
-    req.user = { _id: userId };
+    req.user = { _id: 'empty' };
+
+    if (req.headers['User-ID'] || req.headers['user-id']) {
+      req.user._id = req.headers['User-ID'] || req.headers['user-id'];
+    }
+
     next();
   });
   app.use('/users', userRouter);
