@@ -1,9 +1,10 @@
 import path from 'path';
+import { constants } from 'http2';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import express from 'express';
 import bodyParser from 'body-parser';
-import { constants } from 'http2';
+import pino from 'pino-http';
 // modules
 import { HTTPError } from './errors/index.js';
 // routes
@@ -24,7 +25,17 @@ export const run = async (envName) => {
   config.NODE_ENV = envName;
 
   const app = express();
+  const logger = pino({
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+      },
+    },
+    level: config.LOG_LEVEL,
+  });
 
+  app.use(logger);
   app.use(bodyParser.json());
   app.use((req, res, next) => {
     req.user = {
@@ -48,6 +59,7 @@ export const run = async (envName) => {
     const isHttpError = err instanceof HTTPError;
     const isValidatorError = err.name === 'CastError';
 
+    req.log.debug(err);
     if (isHttpError) {
       res.status(err.statusCode).send({
         message: err.message,
@@ -60,7 +72,7 @@ export const run = async (envName) => {
     }
     if (!(isHttpError || isValidatorError)) {
       res.status(constants.HTTP_STATUS_SERVICE_UNAVAILABLE).send({
-        message: err.message,
+        message: err.message || 'Неизвестная ошибка',
       });
     }
     next();

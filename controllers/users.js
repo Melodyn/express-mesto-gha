@@ -1,16 +1,12 @@
-import { constants } from 'http2';
+import { HTTPError, NotFoundError, BadRequestError } from '../errors/index.js';
 import { User } from '../models/users.js';
 
-const responseReadError = (res) => res.status(constants.HTTP_STATUS_NOT_FOUND).send({
-  message: 'Запрашиваемый пользователь не найден',
-});
+const notFoundError = new NotFoundError('Запрашиваемый пользователь не найден');
 
-const responseUpdateError = (res, message) => res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
-  message: `Некорректные данные для пользователя. ${message}`,
-});
+const buildErrorBadRequest = (message) => new BadRequestError(`Некорректные данные для пользователя. ${message}`);
 
-export const read = (req, res) => {
-  const { id } = req.params;
+export const read = (req, res, next) => {
+  const id = (req.params.id === 'me') ? req.user._id : req.params.id;
   const promise = id ? User.findById(id) : User.find({});
 
   promise
@@ -18,31 +14,33 @@ export const read = (req, res) => {
       if (user) {
         res.send(user);
       } else {
-        responseReadError(res);
+        throw notFoundError;
       }
     })
     .catch((err) => {
-      console.error(err);
-      if (err.name === 'CastError') {
-        responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else if (err.name === 'CastError') {
+        next(buildErrorBadRequest(res, err.message));
       } else {
-        responseReadError(res);
+        next(notFoundError);
       }
     });
 };
 
-export const create = (req, res) => {
+export const create = (req, res, next) => {
   User.create(req.body)
-    .then((user) => {
-      res.send(user);
-    })
+    .then((user) => res.send(user))
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else {
+        next(buildErrorBadRequest(err.message));
+      }
     });
 };
 
-export const update = (req, res) => {
+export const update = (req, res, next) => {
   const user = req.body;
   const { _id } = req.user;
 
@@ -51,11 +49,14 @@ export const update = (req, res) => {
       if (updatedUser) {
         res.send(updatedUser);
       } else {
-        responseReadError(res);
+        throw buildErrorBadRequest('Не удалось обновить пользователя');
       }
     })
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else {
+        next(buildErrorBadRequest(err.message));
+      }
     });
 };

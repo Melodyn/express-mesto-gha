@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { NotFoundError, BadRequestError } from '../errors/index.js';
+import { NotFoundError, UnauthorizedError } from '../errors/index.js';
 
 const { Schema } = mongoose;
 
-const urlRegex = /^http[s]*:\/\/.+$'/;
+const urlRegex = /^http[s]*:\/\/.+$/;
 const emailRegex = /^.+@.+$/;
 
 const schema = new Schema({
@@ -23,7 +23,6 @@ const schema = new Schema({
   avatar: {
     type: String,
     default: 'https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif',
-    required: true,
     validate: {
       validator: (value) => urlRegex.test(value),
       message: () => 'Аватар должен быть http(s)-URL',
@@ -33,6 +32,7 @@ const schema = new Schema({
     type: String,
     required: true,
     minLength: 3,
+    unique: true,
     validate: {
       validator: (value) => emailRegex.test(value),
       message: () => 'Почта должна быть вида a@b.c',
@@ -58,9 +58,10 @@ const schema = new Schema({
           return bcrypt.compare(password, user.password)
             .then((isSuccess) => {
               if (!isSuccess) {
-                throw new BadRequestError('Неправильный логин или пароль');
+                throw new UnauthorizedError('Неправильный логин или пароль');
               }
-              return user;
+              const { password: removed, ...fields } = user.toObject();
+              return fields;
             });
         });
     },

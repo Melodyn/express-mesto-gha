@@ -1,30 +1,31 @@
-import { constants } from 'http2';
 import { Card } from '../models/cards.js';
+import { HTTPError, BadRequestError, NotFoundError } from '../errors/index.js';
 
-const responseReadError = (res) => res.status(constants.HTTP_STATUS_NOT_FOUND).send({
-  message: 'Запрашиваемая карточка не найдена',
-});
+const notFoundError = new NotFoundError('Запрашиваемая карточка не найдена');
 
-const responseUpdateError = (res, message) => res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
-  message: `Некорректные данные для карточки. ${message}`,
-});
+const buildErrorBadRequest = (message) => new BadRequestError(`Некорректные данные для карточки. ${message}`);
 
-export const read = (req, res) => {
+// TODO перепроверить обработку ошибок
+
+export const read = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (cards) {
         res.send(cards);
       } else {
-        responseReadError(res);
+        throw notFoundError;
       }
     })
     .catch((err) => {
-      console.error(err);
-      responseReadError(res);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else {
+        next(buildErrorBadRequest(err.message));
+      }
     });
 };
 
-export const create = (req, res) => {
+export const create = (req, res, next) => {
   const { name, link } = req.body;
   const card = { name, link, owner: req.user._id };
 
@@ -33,16 +34,19 @@ export const create = (req, res) => {
       if (newCard) {
         res.send(newCard);
       } else {
-        responseReadError(res);
+        throw notFoundError;
       }
     })
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else {
+        next(buildErrorBadRequest(err.message));
+      }
     });
 };
 
-export const update = (req, res) => {
+export const update = (req, res, next) => {
   const { id, isLike = false } = req.params;
   const userId = req.user._id;
   const updateParams = isLike
@@ -54,16 +58,19 @@ export const update = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        responseReadError(res);
+        throw notFoundError;
       }
     })
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else {
+        next(buildErrorBadRequest(err.message));
+      }
     });
 };
 
-export const remove = (req, res) => {
+export const remove = (req, res, next) => {
   const { id } = req.params;
 
   Card.findByIdAndDelete(id)
@@ -72,15 +79,16 @@ export const remove = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        responseReadError(res);
+        throw notFoundError;
       }
     })
     .catch((err) => {
-      console.error(err);
-      if (err.name === 'CastError') {
-        responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else if (err.name === 'CastError') {
+        next(buildErrorBadRequest(err.message));
       } else {
-        responseReadError(res);
+        next(notFoundError);
       }
     });
 };
