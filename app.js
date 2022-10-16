@@ -4,9 +4,12 @@ import mongoose from 'mongoose';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { constants } from 'http2';
+// modules
+import { HTTPError } from './errors/index.js';
 // routes
 import { router as userRouter } from './routes/users.js';
 import { router as cardRouter } from './routes/cards.js';
+import { router as authRouter } from './routes/auth.js';
 
 export const run = async (envName) => {
   process.on('unhandledRejection', (err) => {
@@ -34,10 +37,33 @@ export const run = async (envName) => {
 
     next();
   });
+
+  app.use('/', authRouter);
   app.use('/users', userRouter);
   app.use('/cards', cardRouter);
   app.all('/*', (req, res) => {
     res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
+  });
+  app.use((err, req, res, next) => {
+    const isHttpError = err instanceof HTTPError;
+    const isValidatorError = err.name === 'CastError';
+
+    if (isHttpError) {
+      res.status(err.statusCode).send({
+        message: err.message,
+      });
+    }
+    if (isValidatorError) {
+      res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
+        message: `Переданы некоректные данные. ${err.message}`,
+      });
+    }
+    if (!(isHttpError || isValidatorError)) {
+      res.status(constants.HTTP_STATUS_SERVICE_UNAVAILABLE).send({
+        message: err.message,
+      });
+    }
+    next();
   });
 
   // ('mongodb://localhost:27017/mestodb')

@@ -6,7 +6,9 @@ Content-Type: application/json
 {
     "name":"Меместо",
     "about":"Место ваших мемов",
-    "avatar":"https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif"
+    "avatar":"https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif",
+    "email":"a@b.c",
+    "password":"jopa lala"
 }
 
 ###
@@ -18,7 +20,7 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3000/users/634acfe1f470f96c0c324948
+GET http://localhost:3000/users/634c1b34fdfb6778e26af20e
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
@@ -29,7 +31,7 @@ PATCH http://localhost:3000/users/me
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634acfe1f470f96c0c324948
+User-ID: 634c1b34fdfb6778e26af20e
 
 {
     "name":"Меместограм",
@@ -42,7 +44,7 @@ PATCH http://localhost:3000/users/me/avatar
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634acfe1f470f96c0c324948
+User-ID: 634c1b34fdfb6778e26af20e
 
 {
     "avatar":"https://memepedia.ru/wp-content/uploads/2019/03/u-suka-10.jpg"
