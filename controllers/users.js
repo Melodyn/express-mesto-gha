@@ -1,10 +1,11 @@
+import { constants } from 'http2';
 import { User } from '../models/users.js';
 
-const responseReadError = (res) => res.status(404).send({
+const responseReadError = (res) => res.status(constants.HTTP_STATUS_NOT_FOUND).send({
   message: 'Запрашиваемый пользователь не найден',
 });
 
-const responseUpdateError = (res, message) => res.status(400).send({
+const responseUpdateError = (res, message) => res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
   message: `Некорректные данные для пользователя. ${message}`,
 });
 

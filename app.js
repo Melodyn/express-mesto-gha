@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import express from 'express';
 import bodyParser from 'body-parser';
+import { constants } from 'http2';
 // routes
 import { router as userRouter } from './routes/users.js';
 import { router as cardRouter } from './routes/cards.js';
@@ -36,7 +37,7 @@ export const run = async (envName) => {
   app.use('/users', userRouter);
   app.use('/cards', cardRouter);
   app.all('/*', (req, res) => {
-    res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
+    res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
   });
 
   // ('mongodb://localhost:27017/mestodb')
