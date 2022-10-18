@@ -9,18 +9,17 @@ const responseUpdateError = (res, message) => res.status(constants.HTTP_STATUS_B
   message: `Некорректные данные для карточки. ${message}`,
 });
 
+const responseServerError = (res, message) => res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
+  message: `На сервере произошла ошибка. ${message}`,
+});
+
 export const read = (req, res) => {
   Card.find({})
     .then((cards) => {
-      if (cards) {
-        res.send(cards);
-      } else {
-        responseReadError(res);
-      }
+      res.send(cards || []);
     })
     .catch((err) => {
-      console.error(err);
-      responseReadError(res);
+      responseServerError(res, err.message);
     });
 };
 
@@ -37,8 +36,11 @@ export const create = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err.name === 'ValidatorError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseServerError(res, err.message);
+      }
     });
 };
 
@@ -58,8 +60,11 @@ export const update = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err.name === 'CastError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseServerError(res, err.message);
+      }
     });
 };
 
@@ -68,7 +73,6 @@ export const remove = (req, res) => {
 
   Card.findByIdAndDelete(id)
     .then((card) => {
-      console.log('card', card);
       if (card) {
         res.send(card);
       } else {
@@ -76,11 +80,10 @@ export const remove = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === 'CastError') {
         responseUpdateError(res, err.message);
       } else {
-        responseReadError(res);
+        responseServerError(res, err.message);
       }
     });
 };

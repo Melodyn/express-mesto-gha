@@ -9,11 +9,12 @@ const responseUpdateError = (res, message) => res.status(constants.HTTP_STATUS_B
   message: `Некорректные данные для пользователя. ${message}`,
 });
 
-export const read = (req, res) => {
-  const { id } = req.params;
-  const promise = id ? User.findById(id) : User.find({});
+const responseServerError = (res, message) => res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
+  message: `На сервере произошла ошибка. ${message}`,
+});
 
-  promise
+export const readOne = (req, res) => {
+  User.findById(req.params.id)
     .then((user) => {
       if (user) {
         res.send(user);
@@ -22,11 +23,24 @@ export const read = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === 'CastError') {
         responseUpdateError(res, err.message);
       } else {
-        responseReadError(res);
+        responseServerError(res, err.message);
+      }
+    });
+};
+
+export const readAll = (req, res) => {
+  User.find({})
+    .then((users) => {
+      res.send(users || []);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseServerError(res, err.message);
       }
     });
 };
@@ -37,12 +51,15 @@ export const create = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err.name === 'ValidatorError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseServerError(res, err.message);
+      }
     });
 };
 
-export const update = (req, res) => {
+export const updateAvatar = (req, res) => {
   const user = req.body;
   const { _id } = req.user;
 
@@ -55,7 +72,31 @@ export const update = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
-      responseUpdateError(res, err.message);
+      if (err.name === 'ValidatorError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseServerError(res, err.message);
+      }
+    });
+};
+
+export const updateInfo = (req, res) => {
+  const user = req.body;
+  const { _id } = req.user;
+
+  User.findByIdAndUpdate(_id, user, { new: true })
+    .then((updatedUser) => {
+      if (updatedUser) {
+        res.send(updatedUser);
+      } else {
+        responseReadError(res);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidatorError') {
+        responseUpdateError(res, err.message);
+      } else {
+        responseServerError(res, err.message);
+      }
     });
 };

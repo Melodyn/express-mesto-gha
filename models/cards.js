@@ -19,12 +19,12 @@ const schema = new Schema({
     required: true,
   },
   likes: {
-    type: Array,
+    type: [{ type: Schema.ObjectId, ref: 'User' }],
     default: [],
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date,
   },
 }, { versionKey: false });
 
