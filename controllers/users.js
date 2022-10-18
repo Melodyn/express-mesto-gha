@@ -34,7 +34,7 @@ export const readOne = (req, res) => {
 export const readAll = (req, res) => {
   User.find({})
     .then((users) => {
-      res.send(users || []);
+      res.send(users);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -60,10 +60,10 @@ export const create = (req, res) => {
 };
 
 export const updateAvatar = (req, res) => {
-  const user = req.body;
+  const { avatar } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, user, { new: true })
+  User.findByIdAndUpdate(_id, { avatar }, { new: true })
     .then((updatedUser) => {
       if (updatedUser) {
         res.send(updatedUser);
@@ -81,10 +81,10 @@ export const updateAvatar = (req, res) => {
 };
 
 export const updateInfo = (req, res) => {
-  const user = req.body;
+  const { name, about } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, user, { new: true })
+  User.findByIdAndUpdate(_id, { name, about }, { new: true })
     .then((updatedUser) => {
       if (updatedUser) {
         res.send(updatedUser);

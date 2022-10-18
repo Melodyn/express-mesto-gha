@@ -24,7 +24,7 @@ const schema = new Schema({
   },
   createdAt: {
     type: Date,
-    default: Date,
+    default: Date.now,
   },
 }, { versionKey: false });
 

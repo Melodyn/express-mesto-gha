@@ -16,7 +16,7 @@ const responseServerError = (res, message) => res.status(constants.HTTP_STATUS_B
 export const read = (req, res) => {
   Card.find({})
     .then((cards) => {
-      res.send(cards || []);
+      res.send(cards);
     })
     .catch((err) => {
       responseServerError(res, err.message);
