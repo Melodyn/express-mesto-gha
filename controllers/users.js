@@ -27,7 +27,7 @@ export const readOne = (req, res, next) => {
       } else if (err.name === 'CastError') {
         next(buildErrorBadRequest(err.message));
       } else {
-        next(notFoundError);
+        next(buildErrorServer(err.message));
       }
     });
 };
@@ -40,10 +40,8 @@ export const readAll = (req, res, next) => {
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);
-      } else if (err.name === 'CastError') {
-        next(buildErrorBadRequest(err.message));
       } else {
-        next(notFoundError);
+        next(buildErrorServer(err.message));
       }
     });
 };
