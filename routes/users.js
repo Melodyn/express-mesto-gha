@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import { readOne, readAll, create, update } from '../controllers/users.js';
+import {
+  readOne, readAll, create, update,
+} from '../controllers/users.js';
 
 export const router = Router();
 

@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/users.js';
 import {
   HTTPError,
-  BadRequestError, 
+  BadRequestError,
   ConflictError,
   ServerError,
 } from '../errors/index.js';
@@ -19,7 +19,6 @@ export const login = (req, res, next) => {
     .then((userData) => {
       const { JWT_SALT } = req.app.get('config');
       const token = jwt.sign({ _id: userData._id }, JWT_SALT, { expiresIn: '1h' });
-      console.log({ token });
       res.send({ token });
     })
     .catch((err) => {
