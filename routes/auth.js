@@ -3,7 +3,7 @@ import { login, register } from '../controllers/auth.js';
 import {
   celebrateBodyUser,
   celebrateBodyAuth,
-} from '../validators/user.js';
+} from '../validators/users.js';
 
 export const router = Router();
 

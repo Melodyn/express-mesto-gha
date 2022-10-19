@@ -10,7 +10,7 @@ import {
   celebrateBodyAvatar,
   celebrateBodyProfile,
   celebrateParamsRouteMe,
-} from '../validators/user.js';
+} from '../validators/users.js';
 
 export const router = Router();
 
