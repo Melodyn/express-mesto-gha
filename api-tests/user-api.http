@@ -17,6 +17,7 @@ GET http://localhost:3000/users
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
+Authorization: {{token}}
 
 ###
 
@@ -24,7 +25,7 @@ GET http://localhost:3000/users/me
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: {{user1}}
+Authorization: {{token}}
 
 ###
 
@@ -32,7 +33,7 @@ GET http://localhost:3000/users/{{user2}}
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: {{user1}}
+Authorization: {{token}}
 
 ###
 
@@ -40,7 +41,7 @@ PATCH http://localhost:3000/users/me
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: {{user1}}
+Authorization: {{token}}
 
 {
     "name":"Меместограм",
@@ -53,7 +54,7 @@ PATCH http://localhost:3000/users/me/avatar
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: {{user1}}
+Authorization: {{token}}
 
 {
     "avatar":"https://memepedia.ru/wp-content/uploads/2019/03/u-suka-10.jpg"

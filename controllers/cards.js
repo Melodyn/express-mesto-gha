@@ -1,26 +1,25 @@
 import { Card } from '../models/cards.js';
-import { HTTPError, BadRequestError, NotFoundError } from '../errors/index.js';
+import {
+  HTTPError,
+  BadRequestError,
+  NotFoundError,
+  ServerError,
+} from '../errors/index.js';
 
+const buildErrorServer = (message) => new ServerError(message);
 const notFoundError = new NotFoundError('Запрашиваемая карточка не найдена');
-
 const buildErrorBadRequest = (message) => new BadRequestError(`Некорректные данные для карточки. ${message}`);
-
-// TODO перепроверить обработку ошибок
 
 export const read = (req, res, next) => {
   Card.find({})
     .then((cards) => {
-      if (cards) {
-        res.send(cards);
-      } else {
-        throw notFoundError;
-      }
+      res.send(cards);
     })
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);
       } else {
-        next(buildErrorBadRequest(err.message));
+        next(buildErrorServer(err.message));
       }
     });
 };
@@ -40,8 +39,10 @@ export const create = (req, res, next) => {
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);
-      } else {
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(buildErrorBadRequest(err.message));
+      } else {
+        next(buildErrorServer(err.message));
       }
     });
 };
@@ -64,8 +65,10 @@ export const update = (req, res, next) => {
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);
-      } else {
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(buildErrorBadRequest(err.message));
+      } else {
+        next(buildErrorServer(err.message));
       }
     });
 };
@@ -75,7 +78,6 @@ export const remove = (req, res, next) => {
 
   Card.findByIdAndDelete(id)
     .then((card) => {
-      console.log('card', card);
       if (card) {
         res.send(card);
       } else {

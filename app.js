@@ -11,6 +11,7 @@ import { HTTPError } from './errors/index.js';
 import { router as userRouter } from './routes/users.js';
 import { router as cardRouter } from './routes/cards.js';
 import { router as authRouter } from './routes/auth.js';
+import { auth } from './middlewares/auth.js';
 
 export const run = async (envName) => {
   process.on('unhandledRejection', (err) => {
@@ -35,23 +36,13 @@ export const run = async (envName) => {
     level: config.LOG_LEVEL,
   });
 
+  app.set('config', config);
   app.use(logger);
   app.use(bodyParser.json());
-  app.use((req, res, next) => {
-    req.user = {
-      _id: '5d8b8592978f8bd833ca8133',
-    };
-
-    if (req.headers['User-ID'] || req.headers['user-id']) {
-      req.user._id = req.headers['User-ID'] || req.headers['user-id'];
-    }
-
-    next();
-  });
 
   app.use('/', authRouter);
-  app.use('/users', userRouter);
-  app.use('/cards', cardRouter);
+  app.use('/users', auth, userRouter);
+  app.use('/cards', auth, cardRouter);
   app.all('/*', (req, res) => {
     res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
   });
