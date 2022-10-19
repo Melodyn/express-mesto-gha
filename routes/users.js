@@ -9,12 +9,13 @@ import {
   celebrateBodyUser,
   celebrateBodyAvatar,
   celebrateBodyProfile,
+  celebrateParamsRouteMe,
 } from '../validators/user.js';
 
 export const router = Router();
 
 router.get('/', readAll);
-router.get('/:id', readOne);
+router.get('/:id', celebrateParamsRouteMe, readOne);
 router.post('/', celebrateBodyUser, create);
 router.patch('/me', celebrateBodyProfile, update);
 router.patch('/me/avatar', celebrateBodyAvatar, update);

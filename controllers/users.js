@@ -25,7 +25,7 @@ export const readOne = (req, res, next) => {
       if (err instanceof HTTPError) {
         next(err);
       } else if (err.name === 'CastError') {
-        next(buildErrorBadRequest(res, err.message));
+        next(buildErrorBadRequest(err.message));
       } else {
         next(notFoundError);
       }
@@ -41,7 +41,7 @@ export const readAll = (req, res, next) => {
       if (err instanceof HTTPError) {
         next(err);
       } else if (err.name === 'CastError') {
-        next(buildErrorBadRequest(res, err.message));
+        next(buildErrorBadRequest(err.message));
       } else {
         next(notFoundError);
       }
