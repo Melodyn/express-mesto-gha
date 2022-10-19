@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import express from 'express';
 import bodyParser from 'body-parser';
 import pino from 'pino-http';
+import { errors, isCelebrateError } from 'celebrate';
 // modules
 import { HTTPError } from './errors/index.js';
 // routes
@@ -38,6 +39,7 @@ export const run = async (envName) => {
 
   app.set('config', config);
   app.use(logger);
+  app.use(errors());
   app.use(bodyParser.json());
 
   app.use('/', authRouter);
@@ -48,7 +50,8 @@ export const run = async (envName) => {
   });
   app.use((err, req, res, next) => {
     const isHttpError = err instanceof HTTPError;
-    const isValidatorError = err.name === 'CastError';
+    const isValidatorError = isCelebrateError(err);
+    const isModelError = (err.name === 'ValidationError') || (err.name === 'CastError');
 
     req.log.debug(err);
     if (isHttpError) {
@@ -57,11 +60,19 @@ export const run = async (envName) => {
       });
     }
     if (isValidatorError) {
+      const message = Array.from(err.details.keys())
+        .map((name) => err.details.get(name).message)
+        .join(';');
+      res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
+        message: `Переданы некоректные данные. ${message}`,
+      });
+    }
+    if (!isValidatorError && isModelError) {
       res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
         message: `Переданы некоректные данные. ${err.message}`,
       });
     }
-    if (!(isHttpError || isValidatorError)) {
+    if (!(isHttpError || isModelError || isValidatorError)) {
       res.status(constants.HTTP_STATUS_SERVICE_UNAVAILABLE).send({
         message: err.message || 'Неизвестная ошибка',
       });
