@@ -4,12 +4,12 @@ import {
   BadRequestError,
   NotFoundError,
   ServerError,
-  UnauthorizedError,
+  ForbiddenError,
 } from '../errors/index.js';
 
 const buildErrorServer = (message) => new ServerError(message);
 const notFoundError = new NotFoundError('Запрашиваемая карточка не найдена');
-const unauthorizedError = new UnauthorizedError('Это действие выполнить можно только со своими карточками');
+const forbiddenError = new ForbiddenError('Это действие выполнить можно только со своими карточками');
 const buildErrorBadRequest = (message) => new BadRequestError(`Некорректные данные для карточки. ${message}`);
 
 export const read = (req, res, next) => {
@@ -72,15 +72,14 @@ export const update = (req, res, next) => {
 };
 
 export const remove = (req, res, next) => {
-  Card.findOneAndDelete({
-    owner: req.user._id,
-    _id: req.params.id,
-  })
+  Card.findById(req.params.id)
     .then((card) => {
-      if (card) {
-        res.send(card);
+      if (!card) {
+        throw notFoundError;
+      } else if (card && card.owner !== req.user._id) {
+        throw forbiddenError;
       } else {
-        throw unauthorizedError;
+        res.send(card);
       }
     })
     .catch((err) => {
