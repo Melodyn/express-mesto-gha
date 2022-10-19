@@ -1,6 +1,6 @@
 import { Joi, Segments, celebrator } from 'celebrate';
 
-const celebrate = celebrator({ mode: 'full' }, undefined); 
+const celebrate = celebrator({ mode: 'full' }, { allowUnknown: true, abortEarly: false });
 
 export const schemaAvatar = Joi.string().uri({ scheme: ['http', 'https'] });
 export const schemaName = Joi.string().min(2).max(30);

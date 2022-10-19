@@ -39,7 +39,10 @@ export const run = async (envName) => {
 
   app.set('config', config);
   app.use(logger);
-  app.use(errors());
+  app.use(errors({
+    statusCode: constants.HTTP_STATUS_BAD_REQUEST,
+    message: 'Переданы некорректные данные',
+  }));
   app.use(bodyParser.json());
 
   app.use('/', authRouter);
@@ -60,11 +63,11 @@ export const run = async (envName) => {
       });
     }
     if (isValidatorError) {
-      const message = Array.from(err.details.keys())
-        .map((name) => err.details.get(name).message)
-        .join(';');
+      // const message = Array.from(err.details.keys())
+      //   .map((name) => err.details.get(name).message)
+      //   .join(';');
       res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
-        message: `Переданы некоректные данные. ${message}`,
+        message: err.message,
       });
     }
     if (!isValidatorError && isModelError) {
