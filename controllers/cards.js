@@ -79,8 +79,11 @@ export const remove = (req, res, next) => {
       } else if (card.owner.toString() !== req.user._id) {
         throw forbiddenError;
       } else {
-        res.send(card);
+        return Card.findByIdAndDelete(req.params.id);
       }
+    })
+    .then((card) => {
+      res.send(card);
     })
     .catch((err) => {
       if (err instanceof HTTPError) {

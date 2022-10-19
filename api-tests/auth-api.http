@@ -4,7 +4,7 @@ Cache-Control: no-cache
 Content-Type: application/json
 
 {
-    "email":"ab@b.c",
+    "email":"a@b.c",
     "password":"password"
 }
 
@@ -16,7 +16,7 @@ Cache-Control: no-cache
 Content-Type: application/json
 
 {
-    "email":"ab@b.c",
+    "email":"a@b.c",
     "password":"password"
 }
 
