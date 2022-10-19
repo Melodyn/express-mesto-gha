@@ -39,15 +39,12 @@ export const run = async (envName) => {
 
   app.set('config', config);
   app.use(logger);
-  app.use(errors({
-    statusCode: constants.HTTP_STATUS_BAD_REQUEST,
-    message: 'Переданы некорректные данные',
-  }));
   app.use(bodyParser.json());
 
   app.use('/', authRouter);
   app.use('/users', auth, userRouter);
   app.use('/cards', auth, cardRouter);
+  app.use(errors());
   app.all('/*', (req, res) => {
     res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
   });
@@ -62,15 +59,7 @@ export const run = async (envName) => {
         message: err.message,
       });
     }
-    if (isValidatorError) {
-      // const message = Array.from(err.details.keys())
-      //   .map((name) => err.details.get(name).message)
-      //   .join(';');
-      res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
-        message: err.message,
-      });
-    }
-    if (!isValidatorError && isModelError) {
+    if (isModelError) {
       res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
         message: `Переданы некоректные данные. ${err.message}`,
       });

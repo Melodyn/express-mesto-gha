@@ -13,9 +13,7 @@ const errorNotUnique = new ConflictError('Пользователь с такой
 const buildErrorBadRequest = (message) => new BadRequestError(`Некорректные данные для пользователя. ${message}`);
 
 export const login = (req, res, next) => {
-  const user = new User(req.body);
-  user.validate()
-    .then(() => User.findOneAndValidatePassword(req.body))
+  User.findOneAndValidatePassword(req.body)
     .then((userData) => {
       const { JWT_SALT } = req.app.get('config');
       const token = jwt.sign({ _id: userData._id }, JWT_SALT, { expiresIn: '1h' });
@@ -33,9 +31,7 @@ export const login = (req, res, next) => {
 };
 
 export const register = (req, res, next) => {
-  const user = new User(req.body);
-  user.validate()
-    .then(() => bcrypt.hash(req.body.password, 10))
+  bcrypt.hash(req.body.password, 10)
     .then((hash) => {
       req.body.password = hash;
 
