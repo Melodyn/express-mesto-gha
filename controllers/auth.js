@@ -41,7 +41,7 @@ export const register = (req, res, next) => {
 
       return User.create(req.body);
     })
-    .then(({ _id, email }) => res.send({ ...user, _id, email }))
+    .then(({ _id }) => res.send({ ...user.toObject(), _id }))
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);

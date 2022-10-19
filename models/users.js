@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { NotFoundError, UnauthorizedError } from '../errors/index.js';
+import { UnauthorizedError } from '../errors/index.js';
 
 const { Schema } = mongoose;
 
@@ -10,19 +10,19 @@ const emailRegex = /^.+@.+$/;
 const schema = new Schema({
   name: {
     type: String,
-    default: 'Меместо',
+    default: 'Жак-Ив Кусто',
     minLength: 2,
     maxLength: 30,
   },
   about: {
     type: String,
-    default: 'Место ваших мемов',
+    default: 'Исследователь',
     minLength: 2,
     maxLength: 30,
   },
   avatar: {
     type: String,
-    default: 'https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif',
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator: (value) => urlRegex.test(value),
       message: () => 'Аватар должен быть http(s)-URL',
@@ -52,7 +52,7 @@ const schema = new Schema({
         .select('+password')
         .then((user) => {
           if (!user) {
-            throw new NotFoundError('Пользователь с такими данными не найден');
+            throw new UnauthorizedError('Пользователь с такими данными не найден');
           }
 
           return bcrypt.compare(password, user.password)

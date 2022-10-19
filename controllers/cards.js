@@ -76,7 +76,7 @@ export const remove = (req, res, next) => {
     .then((card) => {
       if (!card) {
         throw notFoundError;
-      } else if (card && card.owner !== req.user._id) {
+      } else if (card.owner.toString() !== req.user._id) {
         throw forbiddenError;
       } else {
         res.send(card);
