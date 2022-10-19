@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
+const urlRegex = /^http[s]*:\/\/.+$/;
+
 const schema = new Schema({
   name: {
     type: String,
@@ -12,6 +14,10 @@ const schema = new Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (value) => urlRegex.test(value),
+      message: () => 'Ссылка должна быть http(s)-URL',
+    },
   },
   owner: {
     type: Schema.ObjectId,
