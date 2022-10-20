@@ -1,50 +1,51 @@
-import { constants } from 'http2';
 import { Card } from '../models/cards.js';
+import {
+  HTTPError,
+  BadRequestError,
+  NotFoundError,
+  ServerError,
+  ForbiddenError,
+} from '../errors/index.js';
 
-const responseReadError = (res) => res.status(constants.HTTP_STATUS_NOT_FOUND).send({
-  message: 'Запрашиваемая карточка не найдена',
-});
+const buildErrorServer = (message) => new ServerError(message);
+const notFoundError = new NotFoundError('Запрашиваемая карточка не найдена');
+const forbiddenError = new ForbiddenError('Это действие выполнить можно только со своими карточками');
+const buildErrorBadRequest = (message) => new BadRequestError(`Некорректные данные для карточки. ${message}`);
 
-const responseUpdateError = (res, message) => res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
-  message: `Некорректные данные для карточки. ${message}`,
-});
-
-const responseServerError = (res, message) => res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
-  message: `На сервере произошла ошибка. ${message}`,
-});
-
-export const read = (req, res) => {
+export const read = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       res.send(cards);
     })
     .catch((err) => {
-      responseServerError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else {
+        next(buildErrorServer(err.message));
+      }
     });
 };
 
-export const create = (req, res) => {
+export const create = (req, res, next) => {
   const { name, link } = req.body;
   const card = { name, link, owner: req.user._id };
 
   Card.create(card)
     .then((newCard) => {
-      if (newCard) {
-        res.send(newCard);
-      } else {
-        responseReadError(res);
-      }
+      res.send(newCard);
     })
     .catch((err) => {
-      if (err.name === 'ValidatorError') {
-        responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(buildErrorBadRequest(err.message));
       } else {
-        responseServerError(res, err.message);
+        next(buildErrorServer(err.message));
       }
     });
 };
 
-export const update = (req, res) => {
+export const update = (req, res, next) => {
   const { id, isLike = false } = req.params;
   const userId = req.user._id;
   const updateParams = isLike
@@ -56,34 +57,41 @@ export const update = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        responseReadError(res);
+        throw notFoundError;
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(buildErrorBadRequest(err.message));
       } else {
-        responseServerError(res, err.message);
+        next(buildErrorServer(err.message));
       }
     });
 };
 
-export const remove = (req, res) => {
-  const { id } = req.params;
-
-  Card.findByIdAndDelete(id)
+export const remove = (req, res, next) => {
+  Card.findById(req.params.id)
     .then((card) => {
-      if (card) {
-        res.send(card);
+      if (!card) {
+        throw notFoundError;
+      } else if (card.owner.toString() !== req.user._id) {
+        throw forbiddenError;
       } else {
-        responseReadError(res);
+        return Card.findByIdAndDelete(req.params.id);
       }
     })
+    .then((card) => {
+      res.send(card);
+    })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        responseUpdateError(res, err.message);
+      if (err instanceof HTTPError) {
+        next(err);
+      } else if (err.name === 'CastError') {
+        next(buildErrorBadRequest(err.message));
       } else {
-        responseServerError(res, err.message);
+        next(notFoundError);
       }
     });
 };

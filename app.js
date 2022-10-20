@@ -1,12 +1,18 @@
 import path from 'path';
+import { constants } from 'http2';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import express from 'express';
 import bodyParser from 'body-parser';
-import { constants } from 'http2';
+import pino from 'pino-http';
+import { errors, isCelebrateError } from 'celebrate';
+// modules
+import { HTTPError } from './errors/index.js';
 // routes
 import { router as userRouter } from './routes/users.js';
 import { router as cardRouter } from './routes/cards.js';
+import { router as authRouter } from './routes/auth.js';
+import { auth } from './middlewares/auth.js';
 
 export const run = async (envName) => {
   process.on('unhandledRejection', (err) => {
@@ -21,23 +27,49 @@ export const run = async (envName) => {
   config.NODE_ENV = envName;
 
   const app = express();
-
-  app.use(bodyParser.json());
-  app.use((req, res, next) => {
-    req.user = {
-      _id: '5d8b8592978f8bd833ca8133',
-    };
-
-    if (req.headers['User-ID'] || req.headers['user-id']) {
-      req.user._id = req.headers['User-ID'] || req.headers['user-id'];
-    }
-
-    next();
+  const logger = pino({
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+      },
+    },
+    level: config.LOG_LEVEL,
   });
-  app.use('/users', userRouter);
-  app.use('/cards', cardRouter);
+
+  app.set('config', config);
+  app.use(logger);
+  app.use(bodyParser.json());
+
+  app.use('/', authRouter);
+  app.use('/users', auth, userRouter);
+  app.use('/cards', auth, cardRouter);
+  app.use(errors());
   app.all('/*', (req, res) => {
     res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
+  });
+  app.use((err, req, res, next) => {
+    const isHttpError = err instanceof HTTPError;
+    const isValidatorError = isCelebrateError(err);
+    const isModelError = (err.name === 'ValidationError') || (err.name === 'CastError');
+
+    req.log.debug(err);
+    if (isHttpError) {
+      res.status(err.statusCode).send({
+        message: err.message,
+      });
+    }
+    if (isModelError) {
+      res.status(constants.HTTP_STATUS_BAD_REQUEST).send({
+        message: `Переданы некоректные данные. ${err.message}`,
+      });
+    }
+    if (!(isHttpError || isModelError || isValidatorError)) {
+      res.status(constants.HTTP_STATUS_SERVICE_UNAVAILABLE).send({
+        message: err.message || 'Неизвестная ошибка',
+      });
+    }
+    next();
   });
 
   // ('mongodb://localhost:27017/mestodb')

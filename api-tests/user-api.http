@@ -2,11 +2,14 @@ POST http://localhost:3000/users
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
+Authorization: {{token1}}
 
 {
     "name":"Меместо",
     "about":"Место ваших мемов",
-    "avatar":"https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif"
+    "avatar":"https://memepedia.ru/wp-content/uploads/2017/08/1492860042_e-news.su_ohuitelnye-istorii.gif",
+    "email":"user@test.com",
+    "password":"jopa lala"
 }
 
 ###
@@ -15,13 +18,23 @@ GET http://localhost:3000/users
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
+Authorization: {{token1}}
 
 ###
 
-GET http://localhost:3000/users/634ec5c128344f2baa53e650
+GET http://localhost:3000/users/me
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
+Authorization: {{token1}}
+
+###
+
+GET http://localhost:3000/users/{{user2}}
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+Authorization: {{token1}}
 
 ###
 
@@ -29,7 +42,7 @@ PATCH http://localhost:3000/users/me
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634ec5c128344f2baa53e650
+Authorization: {{token1}}
 
 {
     "name":"Меместограм",
@@ -42,7 +55,7 @@ PATCH http://localhost:3000/users/me/avatar
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634ec5c128344f2baa53e650
+Authorization: {{token1}}
 
 {
     "avatar":"https://memepedia.ru/wp-content/uploads/2019/03/u-suka-10.jpg"

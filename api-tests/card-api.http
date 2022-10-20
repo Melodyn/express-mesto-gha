@@ -2,7 +2,7 @@ POST http://localhost:3000/cards
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634acfe1f470f96c0c324948
+Authorization: {{token1}}
 
 {
     "name":"Котолампа",
@@ -15,31 +15,32 @@ GET http://localhost:3000/cards
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
+Authorization: {{token1}}
 
 ### Лайк
 
-PUT http://localhost:3000/cards/634ec3ba5a1c69cf1cd52227/likes
+PUT http://localhost:3000/cards/{{card1}}/likes
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634acfe1f470f96c0c324948
+Authorization: {{token2}}
 
 ### Дизлайк
 
-DELETE http://localhost:3000/cards/634ec3ba5a1c69cf1cd52227/likes
+DELETE http://localhost:3000/cards/{{card1}}/likes
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634acfe1f470f96c0c324948
+Authorization: {{token2}}
 
 ###
 
 ### !!! Удаление карточки
 
-DELETE http://localhost:3000/cards/634b09159b98fd1352ca3f3b
+DELETE http://localhost:3000/cards/{{card1}}
 Accept: */*
 Cache-Control: no-cache
 Content-Type: application/json
-User-ID: 634acfe1f470f96c0c324948
+Authorization: {{token2}}
 
 ###
