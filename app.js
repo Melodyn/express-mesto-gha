@@ -72,7 +72,6 @@ export const run = async (envName) => {
     next();
   });
 
-  // ('mongodb://localhost:27017/mestodb')
   mongoose.set('runValidators', true);
   await mongoose.connect(config.DB_URL);
   const server = app.listen(config.PORT, config.HOST, () => {

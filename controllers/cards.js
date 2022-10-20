@@ -37,7 +37,7 @@ export const create = (req, res, next) => {
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         next(buildErrorBadRequest(err.message));
       } else {
         next(buildErrorServer(err.message));
@@ -63,7 +63,7 @@ export const update = (req, res, next) => {
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+      } else if (err.name === 'CastError') {
         next(buildErrorBadRequest(err.message));
       } else {
         next(buildErrorServer(err.message));
@@ -91,7 +91,7 @@ export const remove = (req, res, next) => {
       } else if (err.name === 'CastError') {
         next(buildErrorBadRequest(err.message));
       } else {
-        next(notFoundError);
+        next(buildErrorServer(err.message));
       }
     });
 };

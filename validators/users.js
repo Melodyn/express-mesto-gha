@@ -5,12 +5,12 @@ export const schemaRouteMe = Joi.alternatives().try(
   Joi.string().equal('me'),
   schemaObjectId,
 ).required();
-export const schemaAvatar = Joi.string().uri({ scheme: ['http', 'https'] });
-export const schemaName = Joi.string().min(2).max(30);
-export const schemaAbout = Joi.string().min(2).max(30);
+export const schemaAvatar = Joi.string().uri({ scheme: ['http', 'https'] }).required();
+export const schemaName = Joi.string().min(2).max(30).required();
+export const schemaAbout = Joi.string().min(2).max(30).required();
 
 export const schemaEmail = Joi.string().email().required();
-export const schemaPassword = Joi.string().min(8).required();
+export const schemaPassword = Joi.string().required();
 
 export const schemaObjectRouteMe = Joi.object({
   id: schemaRouteMe,

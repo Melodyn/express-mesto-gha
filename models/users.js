@@ -31,7 +31,6 @@ const schema = new Schema({
   email: {
     type: String,
     required: true,
-    minLength: 3,
     unique: true,
     validate: {
       validator: (value) => emailRegex.test(value),
@@ -41,7 +40,6 @@ const schema = new Schema({
   password: {
     type: String,
     required: true,
-    minLength: 8,
     select: false,
   },
 }, {
