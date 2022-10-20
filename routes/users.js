@@ -5,14 +5,14 @@ import {
   update,
 } from '../controllers/users.js';
 import {
-  celebrateBodyAvatar,
-  celebrateBodyProfile,
   celebrateParamsRouteMe,
+  celebrateBodyAvatarRequired,
+  celebrateBodyProfileRequired,
 } from '../validators/users.js';
 
 export const router = Router();
 
 router.get('/', readAll);
 router.get('/:id', celebrateParamsRouteMe, readOne);
-router.patch('/me', celebrateBodyProfile, update);
-router.patch('/me/avatar', celebrateBodyAvatar, update);
+router.patch('/me', celebrateBodyProfileRequired, update);
+router.patch('/me/avatar', celebrateBodyAvatarRequired, update);
