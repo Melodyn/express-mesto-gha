@@ -19,7 +19,7 @@ export const run = async (envName) => {
     console.error(err);
     process.exit(1);
   });
-  console.log(process.env);
+  console.log({ PORT: process.env.PORT });
 
   const config = dotenv.config({ path: path.resolve('.env.common') }).parsed;
   if (!config) {
