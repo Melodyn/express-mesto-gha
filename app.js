@@ -1,5 +1,7 @@
 import path from 'path';
 import { constants } from 'http2';
+import { fileURLToPath } from 'url';
+// libs
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import express from 'express';
@@ -14,28 +16,33 @@ import { router as cardRouter } from './routes/cards.js';
 import { router as authRouter } from './routes/auth.js';
 import { auth } from './middlewares/auth.js';
 
+export const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export const run = async (envName) => {
   process.on('unhandledRejection', (err) => {
     console.error(err);
     process.exit(1);
   });
 
-  const config = dotenv.config({ path: path.resolve('.env.common') }).parsed;
+  const config = dotenv.config({ path: path.resolve(__dirname, '.env.common') }).parsed;
   if (!config) {
     throw new Error('Config not found');
   }
   config.NODE_ENV = envName;
 
   const app = express();
-  const logger = pino({
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
+  const loggerConfig = envName.includes('prod')
+    ? { level: config.LOG_LEVEL }
+    : {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+        },
       },
-    },
-    level: config.LOG_LEVEL,
-  });
+      level: config.LOG_LEVEL
+    };
+  const logger = pino(loggerConfig);
 
   app.set('config', config);
   app.use(logger);
@@ -76,11 +83,15 @@ export const run = async (envName) => {
   await mongoose.connect(config.DB_URL);
   const server = app.listen(config.PORT, config.HOST, () => {
     console.log(`Server run on http://${config.HOST}:${config.PORT}`);
+    process.send('ready');
   });
 
   const stop = async () => {
+    console.log('Stop database');
     await mongoose.connection.close();
+    console.log('Stop server');
     server.close();
+    console.log('App stopped successfully');
     process.exit(0);
   };
 
