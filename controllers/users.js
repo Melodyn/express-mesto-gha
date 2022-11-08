@@ -46,6 +46,20 @@ export const readAll = (req, res, next) => {
     });
 };
 
+export const create = (req, res, next) => {
+  User.create(req.body)
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err instanceof HTTPError) {
+        next(err);
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(buildErrorBadRequest(err.message));
+      } else {
+        next(buildErrorServer(err.message));
+      }
+    });
+};
+
 export const update = (req, res, next) => {
   const user = req.body;
   const { _id } = req.user;
@@ -55,7 +69,7 @@ export const update = (req, res, next) => {
       if (updatedUser) {
         res.send(updatedUser);
       } else {
-        throw notFoundError;
+        throw buildErrorBadRequest('Не удалось обновить пользователя');
       }
     })
     .catch((err) => {

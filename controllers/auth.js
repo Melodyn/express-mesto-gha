@@ -22,6 +22,8 @@ export const login = (req, res, next) => {
     .catch((err) => {
       if (err instanceof HTTPError) {
         next(err);
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(buildErrorBadRequest(err.message));
       } else {
         next(buildErrorServer(err.message));
       }
@@ -44,7 +46,7 @@ export const register = (req, res, next) => {
         next(err);
       } else if (err.code === 11000) {
         next(errorNotUnique);
-      } else if (err.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(buildErrorBadRequest(err.message));
       } else {
         next(buildErrorServer(err.message));
